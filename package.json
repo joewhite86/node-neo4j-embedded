@@ -1,0 +1,17 @@
+{
+  "name": "neo4j-jni",
+  "version": "0.0.0",
+  "description": "Neo4j Interface using JNI",
+  "main": "lib/neo4j.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": "",
+  "author": "Jochen Weis <jochen@whitefrog.de>",
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "~1.9.0",
+    "expect.js": "~0.2.0",
+    "async": "~0.2.8"
+  }
+}
