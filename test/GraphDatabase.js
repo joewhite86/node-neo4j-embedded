@@ -65,6 +65,7 @@ describe('GraphDatabase#Cypher', function() {
   });
 
   it('#query', function(done) {
+    this.timeout(10000);
     database.query('START man=node(2) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name', function(err, result) {
       try {
         expect(err).to.be(null);
