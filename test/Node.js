@@ -55,11 +55,10 @@ describe('Node', function() {
     expect(homer.getProperty('name')).to.be('Homer Simpson');
     maggie.setProperty('age', 1);
     expect(maggie.getProperty('age')).to.be(1);
-    maggie.getProperties(function(err, properties) {
-      expect(properties).to.be.an('object');
-      expect(properties.age).to.be(1);
-      done();
-    });
+    var properties = maggie.getProperties();
+    expect(properties).to.be.an('object');
+    expect(properties.age).to.be(1);
+    done();
   });
   it('#delete', function() {
     homer.delete();
@@ -94,5 +93,9 @@ describe('Node', function() {
     expect(marge.getRelationships('MARRIED_WITH').length).to.be(1);
     expect(homer.getRelationships('MARRIED_WITH', 'CHILD_OF').length).to.be(2);
     expect(homer.getRelationships(neo4j.DIRECTION.OUTGOING, 'CHILD_OF', 'MARRIED_WITH').length).to.be(1);
+  });
+  it('#index', function() {
+    homer.setProperty('name', 'Homer Simpson');
+    homer.index('SIMPSON_FAMILY', 'name', 'Homer Simpson');
   });
 });

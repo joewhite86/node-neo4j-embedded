@@ -1,1 +1,3 @@
 test/*.db
+lib/java/neo4j-wrapper/.idea
+lib/java/neo4j-wrapper/target

@@ -31,4 +31,63 @@ describe('GraphDatabase', function() {
     tx.success();
     tx.finish();
   });
+  it('#getNodeById', function() {
+    expect(database.getNodeById(0)).to.be.an('object');
+    expect(database.getNodeById(0).getId()).to.be('0');
+    try {database.getNodeById(100000); expect(true).to.be(false);} catch(e) {}
+  });
+});
+describe('GraphDatabase#Cypher', function() {
+  var homer, marge, rel;
+
+  beforeEach(function() {
+    var tx = database.beginTx();
+
+    homer = database.createNode(),
+    marge = database.createNode();
+
+    homer.setProperty('name', 'Homer Simpson');
+    marge.setProperty('name', 'Marge Simpson');
+    rel = homer.createRelationshipTo(marge, 'MARRIED_WITH');
+
+    tx.success();
+    tx.finish();
+  });
+  afterEach(function() {
+    var tx = database.beginTx();
+
+    rel.delete();
+    homer.delete();
+    marge.delete();
+
+    tx.success();
+    tx.finish();
+  });
+
+  it('#query', function(done) {
+    database.query('START man=node(2) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name', function(err, result) {
+      expect(err).to.be(null);
+      expect(result).to.be.an('array');
+      expect(result[0]).to.be.an('object');
+      expect(result[0].man).to.be.an('object');
+      expect(result[0].man.getId()).to.be('2');
+      expect(result[0].rel).to.be.an('object');
+      expect(result[0].rel.getStartNode().getId()).to.be(result[0].man.getId());
+      expect(result[0].rel.getType()).to.be('MARRIED_WITH');
+      expect(result[0].woman_id.longValue).to.be('3');
+      expect(result[0].woman_name).to.be('Marge Simpson');
+      done();
+    });
+  });
+
+  it('#query collection', function(done) {
+    database.query('START n=node(*) RETURN COLLECT(n) as ns', function(err, result) {
+      expect(err).to.be(null);
+      expect(result).to.be.an('array');
+      expect(result[0].ns).to.be.an('array');
+      expect(result[0].ns[0]).to.be.an('object');
+      expect(result[0].ns[0].getId()).to.be('0');
+      done();
+    });
+  });
 });
