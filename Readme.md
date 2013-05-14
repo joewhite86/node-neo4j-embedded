@@ -1,5 +1,7 @@
 # node-neo4j-jni
 
+[![Build Status](https://travis-ci.org/joewhite86/node-neo4j-jni.png?branch=master)](https://travis-ci.org/joewhite86/node-neo4j-jni)
+
 An interface for neo4j embedded database using JNI.
 
 ## Installation
