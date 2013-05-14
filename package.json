@@ -4,7 +4,7 @@
   "description": "Neo4j Interface using JNI",
   "main": "./lib/neo4j.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha -R spec",
     "install": "mvn -f lib/java/neo4j-wrapper/pom.xml install"
   },
   "repository": {
