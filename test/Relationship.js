@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var neo4j = require('../lib/neo4j');
+var neo4j = new (require('../lib/neo4j'))();
 var async = require('async');
 
 var database;
