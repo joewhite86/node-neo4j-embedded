@@ -80,6 +80,14 @@ describe('GraphDatabase#Cypher', function() {
     });
   });
 
+  it('#query with params', function(done) {
+    database.query('START man=node({search}) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name', {search: homer}, function(err, result) {
+      expect(err).to.be(null);
+      expect(result).to.be.an('array');
+      done();
+    });
+  });
+
   it('#query collection', function(done) {
     database.query('START n=node(*) RETURN COLLECT(n) as ns', function(err, result) {
       expect(err).to.be(null);
