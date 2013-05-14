@@ -7,7 +7,7 @@ An interface for neo4j embedded database using JNI.
 ## Installation
 
 ``` bash
-npm install node-neo4j-jni
+npm install neo4j-jni
 ```
 
 ## Usage
@@ -15,7 +15,7 @@ npm install node-neo4j-jni
 ### Create nodes and relationships
 
 ``` javascript
-var neo4j = new (require('neo4j-jni'))(['-Xmx4096m']);
+var neo4j = new (require('neo4j-jni'))('-Xmx4096m');
 var database = neo4j.connect('graph.db');
 
 var tx = database.beginTx();
@@ -63,6 +63,7 @@ try {
   var properties = marge.getProperties();
   // properties: {name: 'Marge Simpson', haircolor: 'blue'}
   var hairColor = marge.getProperty('haircolor');
+  // hairColor: 'blue'
   tx.success();
 }
 catch(e) {
