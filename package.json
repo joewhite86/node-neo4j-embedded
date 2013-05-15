@@ -1,23 +1,28 @@
 {
-  "name": "neo4j-jni",
-  "version": "0.2.2",
-  "description": "Neo4j Interface using JNI",
+  "name": "neo4j-embedded",
+  "version": "0.2.3",
+  "description": "The embedded Neo4j Graph Database for Node.js.",
   "main": "./lib/neo4j.js",
   "scripts": {
     "test": "mocha -R spec",
-    "install": "mvn -f lib/java/neo4j-wrapper/pom.xml clean package"
+    "install": "mvn clean package"
   },
+  "keywords": [
+    "neo4j",
+    "graph database",
+    "driver"
+  ],
   "repository": {
     "type": "git",
-    "url": "http://github.com/joewhite86/node-neo4j-jni.git"
+    "url": "http://github.com/joewhite86/node-neo4j-embedded.git"
   },
   "bugs": {
-    "url": "http://github.com/joewhite86/node-neo4j-jni/issues"
+    "url": "http://github.com/joewhite86/node-neo4j-embedded/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "http://github.com/joewhite86/node-neo4j-jni/raw/master/LICENSE"
+      "url": "http://github.com/joewhite86/node-neo4j-embedded/raw/master/LICENSE"
     }
   ],
   "author": {

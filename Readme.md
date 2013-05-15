@@ -1,13 +1,13 @@
-# node-neo4j-jni
+# node-neo4j-embedded
 
-[![Build Status](https://travis-ci.org/joewhite86/node-neo4j-jni.png?branch=master)](https://travis-ci.org/joewhite86/node-neo4j-jni)
+[![Build Status](https://travis-ci.org/joewhite86/node-neo4j-embedded.png?branch=master)](https://travis-ci.org/joewhite86/node-neo4j-embedded)
 
-An interface for neo4j embedded database using JNI.
+The embedded Neo4j Graph Database for Node.js.
 
 ## Installation
 
 ``` bash
-npm install neo4j-jni
+npm install neo4j-embedded
 ```
 
 ## Usage
@@ -15,9 +15,11 @@ npm install neo4j-jni
 ### Create nodes and relationships
 
 ``` javascript
-var neo4j = new require('neo4j-jni');
+var neo4j = new require('neo4j-embedded');
+neo4j.setVMOptions('-Xmx4096m');
+neo4j.setDatabaseProperties({'org.neo4j.server.manage.console_engines': 'shell', 'org.neo4j.server.webserver.port', '7575'});
 // connectWrapped enables REST and Webinterface
-var database = neo4j.connectWrapped('graph.db')('-Xmx4096m', {'org.neo4j.server.manage.console_engines': 'shell'}, {'org.neo4j.server.webserver.port', 7575});
+var database = neo4j.connectWrapped('graph.db');
 
 var tx = database.beginTx();
 try {
@@ -96,7 +98,7 @@ database.query(query, {search: 2}, function(err, results) {
 ## Testing
 
 ``` bash
-cd node-neo4j-jni
+cd node-neo4j-embedded
 npm install --dev
 node_modules/mocha/bin/mocha
 ```
