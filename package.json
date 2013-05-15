@@ -1,6 +1,6 @@
 {
   "name": "neo4j-jni",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Neo4j Interface using JNI",
   "main": "./lib/neo4j.js",
   "scripts": {

@@ -11,7 +11,14 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Neo4jWrapper {
-  public String[] columnNames;
+  public class Result {
+    public String[] columnNames;
+    public Object[][] result;
+    public Result(String[] columnNames, Object[][] result) {
+      this.columnNames = columnNames;
+      this.result = result;
+    }
+  }
 
   public class Property {
     public String name;
@@ -33,7 +40,7 @@ public class Neo4jWrapper {
   public String getType(Relationship relationship) {
     return relationship.getType().name();
   }
-  public Object[][] query(GraphDatabaseService graphDb, String query, Map<String, Object> params) {
+  public Result query(GraphDatabaseService graphDb, String query, Map<String, Object> params) {
     ArrayList<Object[]> results = new ArrayList<Object[]>();
     ArrayList<String> columnNames = new ArrayList<String>();
     ExecutionEngine engine = new ExecutionEngine(graphDb);
@@ -49,8 +56,10 @@ public class Neo4jWrapper {
       results.add(rowResult.toArray(new Object[rowResult.size()]));
       firstRow = false;
     }
-    this.columnNames = columnNames.toArray(new String[columnNames.size()]);
-
-    return results.toArray(new Object[results.size()][]);
+    
+    return new Result(
+      columnNames.toArray(new String[columnNames.size()]),
+      results.toArray(new Object[results.size()][])
+    );
   }
 }

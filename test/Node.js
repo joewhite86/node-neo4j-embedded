@@ -50,7 +50,7 @@ describe('Node', function() {
     expect(homer.getId()).to.be.an('string');
     expect(homer.getId()).to.be('1');
   });
-  it('#setProperty', function(done) {
+  it('#get/setProperty', function(done) {
     homer.setProperty('name', 'Homer Simpson');
     expect(homer.getProperty('name')).to.be('Homer Simpson');
     maggie.setProperty('age', 1);
@@ -58,6 +58,8 @@ describe('Node', function() {
     var properties = maggie.getProperties();
     expect(properties).to.be.an('object');
     expect(properties.age).to.be(1);
+    expect(maggie.getProperty('name')).to.be(undefined);
+    expect(maggie.getProperty('name', 'Maggie Simpson')).to.be('Maggie Simpson');
     done();
   });
   it('#delete', function() {

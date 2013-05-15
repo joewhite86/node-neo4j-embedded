@@ -52,7 +52,7 @@ finally {
 }
 ```
 
-## Deal with properties
+### Deal with properties
 
 ``` javascript
 var tx = database.beginTx();
@@ -74,14 +74,14 @@ finally {
 }
 ```
 
-## Handle indices
+### Handle indices
 
 ``` javascript
 var marge = database.getNodeById(2);
 marge.index('SIMPSONS', 'name', marge.getProperty('name'));
 ```
 
-## Cypher queries
+### Cypher queries
 
 ``` javascript
 var query = 'START n=node({search}) RETURN n';
