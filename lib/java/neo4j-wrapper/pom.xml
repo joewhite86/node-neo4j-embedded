@@ -14,22 +14,60 @@
             <artifactId>neo4j-cypher</artifactId>
             <version>1.9.M03</version>
         </dependency>
+        <dependency>
+            <groupId>org.neo4j.app</groupId>
+            <artifactId>neo4j-server</artifactId>
+            <version>1.9.M03</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.app</groupId>
+            <artifactId>neo4j-server</artifactId>
+            <classifier>static-web</classifier>
+            <version>1.9.M03</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.3.2</version>
-                    <configuration>
-                        <source>1.6</source>
-                        <target>1.6</target>
-                        <compilerArgument></compilerArgument>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <compilerArgument></compilerArgument>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>de.whitefrog.Neo4jWrapper</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
 </project>

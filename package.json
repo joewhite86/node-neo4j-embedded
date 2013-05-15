@@ -1,11 +1,11 @@
 {
   "name": "neo4j-jni",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Neo4j Interface using JNI",
   "main": "./lib/neo4j.js",
   "scripts": {
     "test": "mocha -R spec",
-    "install": "mvn -f lib/java/neo4j-wrapper/pom.xml install"
+    "install": "mvn -f lib/java/neo4j-wrapper/pom.xml clean package"
   },
   "repository": {
     "type": "git",

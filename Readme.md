@@ -15,8 +15,9 @@ npm install neo4j-jni
 ### Create nodes and relationships
 
 ``` javascript
-var neo4j = new (require('neo4j-jni'))('-Xmx4096m');
-var database = neo4j.connect('graph.db');
+var neo4j = new require('neo4j-jni');
+// connectWrapped enables REST and Webinterface
+var database = neo4j.connectWrapped('graph.db')('-Xmx4096m', {'org.neo4j.server.manage.console_engines': 'shell'}, {'org.neo4j.server.webserver.port', 7575});
 
 var tx = database.beginTx();
 try {

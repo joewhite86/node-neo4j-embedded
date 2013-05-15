@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var neo4j = new (require('../lib/neo4j'))();
+var neo4j = require('../lib/neo4j');
 var async = require('async');
 
 var database;
@@ -31,6 +31,8 @@ describe('Node', function() {
   afterEach(function(done) {
     async.each([homer, marge, lisa, bart, maggie], function(node, done) {
       try {
+        var rels = node.getRelationships();
+        for(var i = 0; i < rels.length; i++) rels[i].delete();
         node.delete();
       }
       catch(e) {}

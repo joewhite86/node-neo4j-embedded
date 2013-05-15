@@ -5,6 +5,10 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.factory.GraphDatabaseFactory;
+import org.neo4j.kernel.GraphDatabaseAPI;
+import org.neo4j.server.WrappingNeoServerBootstrapper;
+import org.neo4j.server.configuration.ServerConfigurator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,6 +31,32 @@ public class Neo4jWrapper {
       this.name = name;
       this.value = value;
     }
+  }
+  public GraphDatabaseService connect(String dir, Map<String, String> properties) {
+    return new GraphDatabaseFactory()
+        .newEmbeddedDatabaseBuilder(dir)
+        .setConfig(properties)
+        .newGraphDatabase();
+  }
+  public GraphDatabaseService connectWrapped(String dir, Map<String, String> properties, Map<String, Object> serverProperties) {
+    GraphDatabaseAPI graphdb = (GraphDatabaseAPI) connect(dir, properties);
+
+    ServerConfigurator config;
+    config = new ServerConfigurator( graphdb );
+    // disable logging by default
+    if(!serverProperties.containsKey("java.util.logging.ConsoleHandler.level"))
+      serverProperties.put("java.util.logging.ConsoleHandler.level", "OFF");
+    Iterator<String> iterator = serverProperties.keySet().iterator();
+    while(iterator.hasNext()) {
+      String key = iterator.next();
+      config.configuration().setProperty(key, serverProperties.get(key));
+    }
+
+    WrappingNeoServerBootstrapper srv;
+    srv = new WrappingNeoServerBootstrapper( graphdb, config );
+    srv.start();
+
+    return graphdb;
   }
   public Property[] getNodeProperties(Node node) {
     ArrayList<Property> properties = new ArrayList<Property>();
@@ -56,7 +86,7 @@ public class Neo4jWrapper {
       results.add(rowResult.toArray(new Object[rowResult.size()]));
       firstRow = false;
     }
-    
+
     return new Result(
       columnNames.toArray(new String[columnNames.size()]),
       results.toArray(new Object[results.size()][])

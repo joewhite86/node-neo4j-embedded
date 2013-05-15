@@ -1,5 +1,5 @@
 var expect = require('expect.js');
-var neo4j = new (require('../lib/neo4j'))();
+var neo4j = require('../lib/neo4j');
 var async = require('async');
 
 var database;
@@ -7,7 +7,7 @@ var database;
 before(function(done) {
   var exec = require('child_process').exec, child;
   child = exec('rm -rf test/GraphDatabase.db', function(err,out) {
-    database = neo4j.connect('test/GraphDatabase.db', '-Xmx4096m', '-Xms1024m');
+    database = neo4j.connect('test/GraphDatabase.db', '-Xmx4096m');
     done();
   });
 });
