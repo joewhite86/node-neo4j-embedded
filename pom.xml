@@ -36,7 +36,7 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>java-src/main</sourceDirectory>
+        <sourceDirectory>java-src</sourceDirectory>
         <directory>build</directory>
         <plugins>
             <plugin>
@@ -72,7 +72,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>node.Neo4jWrapper</mainClass>
+                            <mainClass>Neo4jWrapper</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
