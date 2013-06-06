@@ -5,6 +5,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
+import org.neo4j.graphdb.index.UniqueFactory;
 import org.neo4j.kernel.GraphDatabaseAPI;
 import org.neo4j.kernel.HighlyAvailableGraphDatabase;
 import org.neo4j.server.WrappingNeoServerBootstrapper;
@@ -78,6 +79,17 @@ public class Neo4jWrapper {
     return graphDb;
   }
 
+  public Node getOrCreate(final GraphDatabaseService graphDb, final String indexName, final String property, final Object value) {
+    UniqueFactory<Node> factory = new UniqueFactory.UniqueNodeFactory(graphDb, indexName) {
+      @Override
+      protected void initialize( Node created, Map<String, Object> properties ) {
+        created.setProperty(property, properties.get( property ) );
+      }
+    };
+ 
+    return factory.getOrCreate(property, value);
+  }
+
   public void installShutdownHook(final GraphDatabaseService graphDb) {
     Runtime.getRuntime().addShutdownHook( new Thread()
     {
@@ -89,7 +101,7 @@ public class Neo4jWrapper {
     } );
   }
 
-  public Property[] getNodeProperties(Node node) {
+  public Property[] getNodeProperties(final Node node) {
     ArrayList<Property> properties = new ArrayList<>();
     Iterator<String> iterator = node.getPropertyKeys().iterator();
     while(iterator.hasNext()) {
@@ -101,7 +113,7 @@ public class Neo4jWrapper {
   public String getType(Relationship relationship) {
     return relationship.getType().name();
   }
-  public Result query(GraphDatabaseService graphDb, String query, Map<String, Object> params) {
+  public Result query(final GraphDatabaseService graphDb, final String query, final Map<String, Object> params) {
     ArrayList<Object[]> results = new ArrayList<>();
     ArrayList<String> columnNames = new ArrayList<>();
     ExecutionEngine engine = new ExecutionEngine(graphDb);

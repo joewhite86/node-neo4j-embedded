@@ -12,17 +12,32 @@ npm install neo4j-embedded
 
 ## Usage
 
-### Create nodes and relationships
+Note that the Neo4j version is 1.9, so you need Java 7 on your machine for this to work.
+If you want to change that, you need to edit the pom.xml and compile for yourself.
+
+### Create a database
 
 ``` javascript
 var neo4j = new require('neo4j-embedded');
 neo4j.setVMOptions('-Xmx4096m');
 neo4j.setDatabaseProperties({'org.neo4j.server.manage.console_engines': 'shell', 'org.neo4j.server.webserver.port', '7575'});
-// connectWrapped enables REST and Webinterface
-var database = neo4j.connectWrapped('graph.db');
 
-var tx = database.beginTx();
+// default embedded
+var database = neo4j.connect('graph.db');
+// enable REST and Webinterface
+var database = neo4j.connectWrapped('graph.db');
+// connect to a high availability cluster
+var database = neo4j.connectHA('graph.db');
+// connect to a high availability cluster, enabling REST and Webinterface
+var database = neo4j.connectHAWrapped('graph.db');
+```
+
+### Create nodes and relationships
+
+``` javascript
+var tx;
 try {
+  tx = database.beginTx();
   var homer = database.createNode();
   var marge = database.createNode();
   var married = homer.createRelationshipTo(marge, 'MARRIED_WITH');
@@ -39,8 +54,9 @@ finally {
 ### Delete nodes and relationships
 
 ``` javascript
-var tx = database.beginTx();
+var tx;
 try {
+  tx = database.beginTx();
   var homer = database.getNodeById(1);
   var married = homer.getRelationship('MARRIED_WITH');
   married.delete();
@@ -58,8 +74,9 @@ finally {
 ### Deal with properties
 
 ``` javascript
-var tx = database.beginTx();
+var tx;
 try {
+  tx = database.beginTx();
   var marge = database.getNodeById(2);
   marge.setProperty('name', 'Marge Simpson');
   marge.setProperty('haircolor', 'blue');
@@ -80,8 +97,20 @@ finally {
 ### Handle indices
 
 ``` javascript
-var marge = database.getNodeById(2);
-marge.index('SIMPSONS', 'name', marge.getProperty('name'));
+var tx;
+try {
+  tx = database.beginTx();
+  var marge = database.getNodeById(2);
+  marge.index('SIMPSONS', 'name', marge.getProperty('name'));
+  marge.removeFromIndex('SIMPSONS');
+  tx.success();
+}
+catch(e) {
+  tx.failure();
+}
+finally {
+  tx.finish();
+}
 ```
 
 ### Cypher queries
