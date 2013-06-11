@@ -110,6 +110,15 @@ public class Neo4jWrapper {
     }
     return properties.toArray(new Property[properties.size()]);
   }
+  public Property[] getRelationshipProperties(final Relationship relationship) {
+    ArrayList<Property> properties = new ArrayList<>();
+    Iterator<String> iterator = relationship.getPropertyKeys().iterator();
+    while(iterator.hasNext()) {
+      String key = iterator.next();
+      properties.add(new Property(key, relationship.getProperty(key)));
+    }
+    return properties.toArray(new Property[properties.size()]);
+  }
   public String getType(Relationship relationship) {
     return relationship.getType().name();
   }
