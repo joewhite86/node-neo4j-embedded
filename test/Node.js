@@ -52,7 +52,7 @@ describe('Node', function() {
     expect(homer.getId()).to.be.an('string');
     expect(homer.getId()).to.be('1');
   });
-  it('#get/setProperty', function(done) {
+  it('#get/setProperty', function() {
     homer.setProperty('name', 'Homer Simpson');
     expect(homer.getProperty('name')).to.be('Homer Simpson');
     maggie.setProperty('age', 1);
@@ -62,7 +62,11 @@ describe('Node', function() {
     expect(properties.age).to.be(1);
     expect(maggie.getProperty('name')).to.be(undefined);
     expect(maggie.getProperty('name', 'Maggie Simpson')).to.be('Maggie Simpson');
-    done();
+  });
+  it('#hasProperty', function() {
+    homer.setProperty('name', 'Homer Simpson');
+    expect(homer.hasProperty('name')).to.be(true);
+    expect(homer.hasProperty('xyz4')).to.be(false);
   });
   it('#delete', function() {
     homer.delete();
@@ -89,14 +93,27 @@ describe('Node', function() {
     expect(bart.hasRelationship(neo4j.DIRECTION.OUTGOING, 'MARRIED_WITH', 'CHILD_OF')).to.be(true);
   });
   it('#getRelationships', function() {
-    expect(homer.createRelationshipTo(marge, 'MARRIED_WITH')).to.be.an('object');
+    var rel = homer.createRelationshipTo(marge, 'MARRIED_WITH');
+    expect(rel).to.be.an('object');
     expect(bart.createRelationshipTo(homer, 'CHILD_OF')).to.be.an('object');
     expect(homer.getRelationships()).to.be.an('array');
     expect(homer.getRelationships().length).to.be(2);
     expect(bart.getRelationships().length).to.be(1);
+    expect(homer.getRelationships().contains(rel)).to.be(true);
     expect(marge.getRelationships('MARRIED_WITH').length).to.be(1);
     expect(homer.getRelationships('MARRIED_WITH', 'CHILD_OF').length).to.be(2);
     expect(homer.getRelationships(neo4j.DIRECTION.OUTGOING, 'CHILD_OF', 'MARRIED_WITH').length).to.be(1);
+  });
+  it('#getRelationshipNodes', function() {
+    expect(homer.createRelationshipTo(marge, 'MARRIED_WITH')).to.be.an('object');
+    expect(bart.createRelationshipTo(homer, 'CHILD_OF')).to.be.an('object');
+    expect(homer.getRelationshipNodes()).to.be.an('array');
+    expect(homer.getRelationshipNodes().length).to.be(2);
+    expect(bart.getRelationshipNodes().length).to.be(1);
+    expect(homer.getRelationshipNodes().contains(marge)).to.be(true);
+    expect(marge.getRelationshipNodes('MARRIED_WITH').length).to.be(1);
+    expect(homer.getRelationshipNodes('MARRIED_WITH', 'CHILD_OF').length).to.be(2);
+    expect(homer.getRelationshipNodes(neo4j.DIRECTION.OUTGOING, 'CHILD_OF', 'MARRIED_WITH').length).to.be(1);
   });
   it('#index', function() {
     homer.setProperty('name', 'Homer Simpson');

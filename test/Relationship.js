@@ -57,6 +57,11 @@ describe('Relationship', function() {
     married.setProperty('years', 25);
     expect(married.getProperty('years')).to.be(25);
   });
+  it('#hasProperty', function() {
+    married.setProperty('years', 25);
+    expect(married.hasProperty('years')).to.be(true);
+    expect(married.hasProperty('xyz4')).to.be(false);
+  });
   it('#index', function() {
     married.index('MARRIED_WITH', 'years', 25);
   });
