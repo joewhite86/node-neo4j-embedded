@@ -6,4 +6,5 @@
 
 branches:
   except:
-    - without-classpath
+    - legacy
+    - experimental
