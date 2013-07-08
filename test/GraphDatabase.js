@@ -7,8 +7,11 @@ var database;
 before(function(done) {
   var exec = require('child_process').exec, child;
   child = exec('rm -rf test/GraphDatabase.db', function(err,out) {
-    database = neo4j.connect('test/GraphDatabase.db', '-Xmx4096m');
-    done();
+    neo4j.setDatabaseProperties(['-Xmx4096m']);
+    neo4j.connect('test/GraphDatabase.db', function(err, db) {
+      database = db;
+      done(err);
+    });
   });
 });
 

@@ -23,13 +23,21 @@ neo4j.setVMOptions('-Xmx4096m');
 neo4j.setDatabaseProperties({'org.neo4j.server.manage.console_engines': 'shell', 'org.neo4j.server.webserver.port', '7575'});
 
 // default embedded
-var database = neo4j.connect('graph.db');
+neo4j.connect('graph.db', function(err, database) {
+  // do something
+});
 // enable REST and Webinterface
-var database = neo4j.connectWrapped('graph.db');
+neo4j.connectWrapped('graph.db', function(err, database) {
+  // do something
+});
 // connect to a high availability cluster
-var database = neo4j.connectHA('graph.db');
+neo4j.connectHA('graph.db', function(err, database) {
+  // do something
+});
 // connect to a high availability cluster, enabling REST and Webinterface
-var database = neo4j.connectHAWrapped('graph.db');
+neo4j.connectHAWrapped('graph.db', function(err, database) {
+  // do something
+});
 ```
 
 ### Create nodes and relationships
@@ -118,6 +126,24 @@ finally {
 ``` javascript
 var query = 'START n=node({search}) RETURN n';
 database.query(query, {search: 2}, function(err, results) {
+  for(var i = 0; i < results.length; i++) {
+    console.log(results[i].n.getId());
+  }
+});
+```
+
+### Query Builder
+
+``` javascript
+var query = database.queryBuilder();
+query.startAt({n: 'node({search})'})
+     .match('(n)-[:MARRIED_WITH']->()')
+     .returns('n');
+
+// disable counting
+// query.dontCount(); -> total will be -1
+
+query.execute({search: 1}, function(err, results, total) {
   for(var i = 0; i < results.length; i++) {
     console.log(results[i].n.getId());
   }

@@ -1,6 +1,6 @@
 {
   "name": "neo4j-embedded",
-  "version": "0.2.10",
+  "version": "0.3.0",
   "description": "The embedded Neo4j Graph Database for Node.js.",
   "main": "./lib/neo4j.js",
   "scripts": {

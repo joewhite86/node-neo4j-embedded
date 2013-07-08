@@ -7,8 +7,11 @@ var database;
 before(function(done) {
   var exec = require('child_process').exec, child;
   child = exec('rm -rf test/Node.db', function(err,out) {
-    database = neo4j.connect('test/Node.db');
-    done();
+    neo4j.setDatabaseProperties(['-Xmx4096m']);
+    neo4j.connect('test/Node.db', function(err, db) {
+      database = db;
+      done();
+    });
   });
 });
 
