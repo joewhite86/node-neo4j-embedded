@@ -137,7 +137,7 @@ database.query(query, {search: 2}, function(err, results) {
 ``` javascript
 var query = database.queryBuilder();
 query.startAt({n: 'node({search})'})
-     .match('(n)-[:MARRIED_WITH']->()')
+     .match('(n)-[:MARRIED_WITH]->()')
      .returns('n');
 
 // disable counting
@@ -155,5 +155,5 @@ query.execute({search: 1}, function(err, results, total) {
 ``` bash
 cd node-neo4j-embedded
 npm install --dev
-node_modules/mocha/bin/mocha
+npm test
 ```
