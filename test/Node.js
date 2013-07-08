@@ -5,6 +5,7 @@ var async = require('async');
 var database;
 
 before(function(done) {
+  this.timeout(10000);
   var exec = require('child_process').exec, child;
   child = exec('rm -rf test/Node.db', function(err,out) {
     neo4j.setDatabaseProperties(['-Xmx4096m']);
