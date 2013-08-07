@@ -2,3 +2,4 @@ test/*.db
 build
 *.iml
 *.sublime-*
+docs

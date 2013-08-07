@@ -10,6 +10,10 @@ The embedded Neo4j Graph Database for Node.js.
 npm install neo4j-embedded
 ```
 
+## Documentation
+
+API documentation can be found here: http://docs.whitefrog.de/neo4j-embedded
+
 ## Usage
 
 Note that the Neo4j version is 1.9, so you need Java 7 on your machine for this to work.
