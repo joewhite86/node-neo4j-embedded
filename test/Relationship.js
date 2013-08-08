@@ -6,19 +6,19 @@ var database;
 
 before(function(done) {
   this.timeout(10000);
-  var exec = require('child_process').exec, child;
-  child = exec('rm -rf test/Relationship.db', function(err,out) {
-    neo4j.setDatabaseProperties(['-Xmx4096m']);
-    neo4j.connect('test/Relationship.db', function(err, db) {
-      database = db;
-      done();
-    });
+  neo4j.setDatabaseProperties(['-Xmx4096m']);
+  neo4j.connect('test/Relationship.db', function(err, db) {
+    database = db;
+    done();
   });
 });
 
 after(function(done) {
   database.shutdown();
-  done();
+  var exec = require('child_process').exec, child;
+  child = exec('rm -rf test/Relationship.db', function(err,out) {
+    done();
+  });
 });
 
 describe('Relationship', function() {
@@ -44,29 +44,29 @@ describe('Relationship', function() {
     try {tx.finish();} catch(e) {};
     done();
   });
-  it('#delete', function() {
+  it('delete', function() {
     expect(married.delete.bind(married)).not.to.throwException();
   });
-  it('#getId', function() {
+  it('getId', function() {
     expect(married.getId()).to.be.an('string');
     expect(married.getId()).to.be('1');
   });
-  it('#getEndNode', function() {
+  it('getEndNode', function() {
     expect(married.getEndNode().getId()).to.be(marge.getId());
   });
-  it('#getStartNode', function() {
+  it('getStartNode', function() {
     expect(married.getStartNode().getId()).to.be(homer.getId());
   });
-  it('#get/setProperty', function() {
+  it('get/setProperty', function() {
     married.setProperty('years', 25);
     expect(married.getProperty('years')).to.be(25);
   });
-  it('#hasProperty', function() {
+  it('hasProperty', function() {
     married.setProperty('years', 25);
     expect(married.hasProperty('years')).to.be(true);
     expect(married.hasProperty('xyz4')).to.be(false);
   });
-  it('#index', function() {
+  it('index', function() {
     married.index('MARRIED_WITH', 'years', 25);
   });
 });

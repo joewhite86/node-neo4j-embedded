@@ -6,19 +6,19 @@ var database;
 
 before(function(done) {
   this.timeout(10000);
-  var exec = require('child_process').exec, child;
-  child = exec('rm -rf test/Node.db', function(err,out) {
-    neo4j.setDatabaseProperties(['-Xmx4096m']);
-    neo4j.connect('test/Node.db', function(err, db) {
-      database = db;
-      done();
-    });
+  neo4j.setDatabaseProperties(['-Xmx4096m']);
+  neo4j.connect('test/Node.db', function(err, db) {
+    database = db;
+    done();
   });
 });
 
 after(function(done) {
   database.shutdown();
-  done();
+  var exec = require('child_process').exec, child;
+  child = exec('rm -rf test/Node.db', function(err,out) {
+    done();
+  });
 });
 
 describe('Node', function() {
@@ -52,11 +52,11 @@ describe('Node', function() {
       done();
     });
   });
-  it('#getId', function() {
+  it('getId', function() {
     expect(homer.getId()).to.be.an('string');
     expect(homer.getId()).to.be('1');
   });
-  it('#get/setProperty', function() {
+  it('get/setProperty', function() {
     homer.setProperty('name', 'Homer Simpson');
     expect(homer.getProperty('name')).to.be('Homer Simpson');
     maggie.setProperty('age', 1);
@@ -67,22 +67,22 @@ describe('Node', function() {
     expect(maggie.getProperty('name')).to.be(undefined);
     expect(maggie.getProperty('name', 'Maggie Simpson')).to.be('Maggie Simpson');
   });
-  it('#hasProperty', function() {
+  it('hasProperty', function() {
     homer.setProperty('name', 'Homer Simpson');
     expect(homer.hasProperty('name')).to.be(true);
     expect(homer.hasProperty('xyz4')).to.be(false);
   });
-  it('#delete', function() {
+  it('delete', function() {
     homer.delete();
     try {
       homer.setProperty('name', 'Homer Simpson');
     }
     catch(e) {}
   });
-  it('#createRelationshipTo', function() {
+  it('createRelationshipTo', function() {
     expect(homer.createRelationshipTo(marge, 'MARRIED_WITH')).to.be.an('object');
   });
-  it('#hasRelationship', function() {
+  it('hasRelationship', function() {
     expect(homer.createRelationshipTo(marge, 'MARRIED_WITH')).to.be.an('object');
     expect(bart.createRelationshipTo(homer, 'CHILD_OF')).to.be.an('object');
     expect(homer.hasRelationship()).to.be(true);
@@ -96,7 +96,7 @@ describe('Node', function() {
     expect(bart.hasRelationship('MARRIED_WITH', 'CHILD_OF')).to.be(true);
     expect(bart.hasRelationship(neo4j.DIRECTION.OUTGOING, 'MARRIED_WITH', 'CHILD_OF')).to.be(true);
   });
-  it('#getRelationships', function() {
+  it('getRelationships', function() {
     var rel = homer.createRelationshipTo(marge, 'MARRIED_WITH');
     expect(rel).to.be.an('object');
     expect(bart.createRelationshipTo(homer, 'CHILD_OF')).to.be.an('object');
@@ -108,7 +108,7 @@ describe('Node', function() {
     expect(homer.getRelationships('MARRIED_WITH', 'CHILD_OF').length).to.be(2);
     expect(homer.getRelationships(neo4j.DIRECTION.OUTGOING, 'CHILD_OF', 'MARRIED_WITH').length).to.be(1);
   });
-  it('#getRelationshipNodes', function() {
+  it('getRelationshipNodes', function() {
     expect(homer.createRelationshipTo(marge, 'MARRIED_WITH')).to.be.an('object');
     expect(bart.createRelationshipTo(homer, 'CHILD_OF')).to.be.an('object');
     expect(homer.getRelationshipNodes()).to.be.an('array');
@@ -119,7 +119,7 @@ describe('Node', function() {
     expect(homer.getRelationshipNodes('MARRIED_WITH', 'CHILD_OF').length).to.be(2);
     expect(homer.getRelationshipNodes(neo4j.DIRECTION.OUTGOING, 'CHILD_OF', 'MARRIED_WITH').length).to.be(1);
   });
-  it('#index', function() {
+  it('index', function() {
     homer.setProperty('name', 'Homer Simpson');
     homer.index('SIMPSON_FAMILY', 'name', 'Homer Simpson');
   });

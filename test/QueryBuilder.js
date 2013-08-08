@@ -6,19 +6,19 @@ var database;
 
 before(function(done) {
   this.timeout(10000);
-  var exec = require('child_process').exec, child;
-  child = exec('rm -rf test/QueryBuilder.db', function(err,out) {
-    neo4j.setDatabaseProperties(['-Xmx4096m']);
-    neo4j.connect('test/QueryBuilder.db', function(err, db) {
-      database = db;
-      done();
-    });
+  neo4j.setDatabaseProperties(['-Xmx4096m']);
+  neo4j.connect('test/QueryBuilder.db', function(err, db) {
+    database = db;
+    done();
   });
 });
 
 after(function(done) {
   database.shutdown();
-  done();
+  var exec = require('child_process').exec, child;
+  child = exec('rm -rf test/QueryBuilder.db', function(err,out) {
+    done();
+  });
 });
 
 describe('QueryBuilder', function() {
@@ -77,7 +77,7 @@ describe('QueryBuilder', function() {
       done();
     });
   });
-  it('#simple query', function(done) {
+  it('should execute a simple query', function(done) {
     var query = database.queryBuilder();
     expect(query).to.be.an('object');
     query.startAt({n: 'node:SIMPSONS("*: *")'});
@@ -90,7 +90,7 @@ describe('QueryBuilder', function() {
       done();
     });
   });
-  it('#find lisa\'s parents', function(done) {
+  it('should find lisa\'s parents', function(done) {
     var query = database.queryBuilder();
     query.startAt({lisa: 'node:SIMPSONS({search})'});
     query.match('(lisa)-[:CHILD_OF]->(parent)');
@@ -101,5 +101,9 @@ describe('QueryBuilder', function() {
       expect(results.length).to.be(2);
       done();
     });
+  });
+  it('should escape special characters for lucene', function() {
+    var query = database.queryBuilder();
+    expect(query.escape('AND OR')).to.be('\\AND\\ \\OR');
   });
 });
