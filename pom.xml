@@ -8,7 +8,7 @@
     <artifactId>neo4j-wrapper</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
-        <neo4j.version>1.9.1</neo4j.version>
+        <neo4j.version>1.9.3</neo4j.version>
     </properties>
 
     <dependencies>
