@@ -19,6 +19,10 @@ API documentation can be found here: http://docs.whitefrog.de/neo4j-embedded
 Note that the Neo4j version is 1.9, so you need Java 7 on your machine for this to work.
 If you want to change that, you need to edit the pom.xml and compile for yourself.
 
+Further take care inside the try/catch blocks. Don't use callbacks inside!
+
+Maybe I will change the methods to be async in future, but actually it works for me.
+
 ### Create a database
 
 ``` javascript
