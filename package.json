@@ -1,6 +1,6 @@
 {
   "name": "neo4j-embedded",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "The embedded Neo4j Graph Database for Node.js.",
   "main": "./lib/neo4j.js",
   "scripts": {
@@ -35,6 +35,6 @@
     "async": "~0.2.8"
   },
   "dependencies": {
-    "java": "joewhite86/node-java"
+    "java": "~0.2.4"
   }
 }
