@@ -78,6 +78,7 @@ describe('QueryBuilder', function() {
     });
   });
   it('should execute a simple query', function(done) {
+    var tx = database.beginTx();
     var query = database.queryBuilder();
     expect(query).to.be.an('object');
     query.startAt({n: 'node:SIMPSONS("*: *")'});
@@ -87,6 +88,8 @@ describe('QueryBuilder', function() {
       expect(result).to.be.an('array');
       expect(total).to.be.a('number');
       expect(total).to.be(5);
+      tx.success();
+      tx.finish();
       done();
     });
   });

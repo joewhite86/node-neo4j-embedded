@@ -36,9 +36,12 @@ describe('GraphDatabase', function() {
     tx.finish();
   });
   it('getNodeById', function() {
+    var tx = database.beginTx();
     expect(database.getNodeById(0)).to.be.an('object');
     expect(database.getNodeById(0).getId()).to.be('0');
     try {database.getNodeById(100000); expect(true).to.be(false);} catch(e) {}
+    tx.success();
+    tx.finish();
   });
 });
 describe('GraphDatabase#Cypher', function() {

@@ -25,11 +25,21 @@ describe('Node', function() {
   var tx, homer, marge, lisa, bart, maggie;
   beforeEach(function(done) {
     tx = database.beginTx();
-    homer = database.createNode();
-    marge = database.createNode();
-    lisa = database.createNode();
-    bart = database.createNode();
-    maggie = database.createNode();
+    try {
+      database.createLabel('Person', 'name');
+      tx.success();
+    }
+    catch(e) {}
+    finally {
+      tx.finish();
+    }
+    tx = database.beginTx();
+    database.database.schemaSync().awaitIndexesOnlineSync(10, neo4j.TimeUnit.SECONDS);
+    homer = database.createNode('Person');
+    marge = database.createNode('Person');
+    lisa = database.createNode('Person');
+    bart = database.createNode('Person');
+    maggie = database.createNode('Person');
     done();
   });
   afterEach(function(done) {
@@ -49,6 +59,7 @@ describe('Node', function() {
         tx.finish();
       }
       catch(e) {}
+
       done();
     });
   });
@@ -118,9 +129,5 @@ describe('Node', function() {
     expect(marge.getRelationshipNodes('MARRIED_WITH').length).to.be(1);
     expect(homer.getRelationshipNodes('MARRIED_WITH', 'CHILD_OF').length).to.be(2);
     expect(homer.getRelationshipNodes(neo4j.DIRECTION.OUTGOING, 'CHILD_OF', 'MARRIED_WITH').length).to.be(1);
-  });
-  it('index', function() {
-    homer.setProperty('name', 'Homer Simpson');
-    homer.index('SIMPSON_FAMILY', 'name', 'Homer Simpson');
   });
 });
