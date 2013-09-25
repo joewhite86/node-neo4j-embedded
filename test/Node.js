@@ -34,13 +34,14 @@ describe('Node', function() {
       tx.finish();
     }
     tx = database.beginTx();
-    database.database.schemaSync().awaitIndexesOnlineSync(10, neo4j.TimeUnit.SECONDS);
-    homer = database.createNode('Person');
-    marge = database.createNode('Person');
-    lisa = database.createNode('Person');
-    bart = database.createNode('Person');
-    maggie = database.createNode('Person');
-    done();
+    database.awaitIndexesOnline(10, function() {
+      homer = database.createNode('Person');
+      marge = database.createNode('Person');
+      lisa = database.createNode('Person');
+      bart = database.createNode('Person');
+      maggie = database.createNode('Person');
+      done();
+    });
   });
   afterEach(function(done) {
     async.each([homer, marge, lisa, bart, maggie], function(node, done) {
