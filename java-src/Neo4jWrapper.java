@@ -1,8 +1,6 @@
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
 import org.neo4j.graphdb.index.UniqueFactory;
@@ -14,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Neo4jWrapper {
   public class Result {
@@ -53,9 +52,7 @@ public class Neo4jWrapper {
     GraphDatabaseAPI graphDb = (GraphDatabaseAPI) this.connectHA(dir, haConfig);
 
     ServerConfigurator config = new ServerConfigurator( graphDb );
-    Iterator<String> iterator = serverProperties.keySet().iterator();
-    while(iterator.hasNext()) {
-      String key = iterator.next();
+    for(String key: serverProperties.keySet()) {
       config.configuration().setProperty(key, serverProperties.get(key));
     }
 
@@ -67,9 +64,7 @@ public class Neo4jWrapper {
     GraphDatabaseAPI graphDb = (GraphDatabaseAPI) this.connect(dir, properties);
 
     ServerConfigurator config = new ServerConfigurator( graphDb );
-    Iterator<String> iterator = serverProperties.keySet().iterator();
-    while(iterator.hasNext()) {
-      String key = iterator.next();
+    for(String key: serverProperties.keySet()) {
       config.configuration().setProperty(key, serverProperties.get(key));
     }
 
@@ -100,11 +95,17 @@ public class Neo4jWrapper {
     } );
   }
 
+  public String[] getNodeLabels(final Node node) {
+    ArrayList<String> labels = new ArrayList<>();
+    for(Label label: node.getLabels()) {
+      labels.add(label.name());
+    }
+    return labels.toArray(new String[labels.size()]);
+  }
+
   public Property[] getNodeProperties(final Node node) {
     ArrayList<Property> properties = new ArrayList<>();
-    Iterator<String> iterator = node.getPropertyKeys().iterator();
-    while(iterator.hasNext()) {
-      String key = iterator.next();
+    for(String key: node.getPropertyKeys()) {
       properties.add(new Property(key, node.getProperty(key)));
     }
     return properties.toArray(new Property[properties.size()]);
@@ -112,8 +113,7 @@ public class Neo4jWrapper {
   public Property[] getRelationshipProperties(final Relationship relationship) {
     ArrayList<Property> properties = new ArrayList<>();
     Iterator<String> iterator = relationship.getPropertyKeys().iterator();
-    while(iterator.hasNext()) {
-      String key = iterator.next();
+    for(String key: relationship.getPropertyKeys()) {
       properties.add(new Property(key, relationship.getProperty(key)));
     }
     return properties.toArray(new Property[properties.size()]);
@@ -124,18 +124,22 @@ public class Neo4jWrapper {
   public Result query(final GraphDatabaseService graphDb, final String query, final Map<String, Object> params) {
     ArrayList<Object[]> results = new ArrayList<>();
     ArrayList<String> columnNames = new ArrayList<>();
-    ExecutionEngine engine = new ExecutionEngine(graphDb);
-    ExecutionResult result = engine.execute(query, params);
 
-    Boolean firstRow = true;
-    for(Map<String, Object> row : result) {
-      ArrayList<Object> rowResult = new ArrayList<>();
-      for(Map.Entry<String, Object> column : row.entrySet()) {
-        if(firstRow) columnNames.add(column.getKey());
-        rowResult.add(column.getValue());
+    try(Transaction tx = graphDb.beginTx()) {
+      ExecutionEngine engine = new ExecutionEngine(graphDb);
+      ExecutionResult result = engine.execute(query, params);
+
+      Boolean firstRow = true;
+      for(Map<String, Object> row : result) {
+        ArrayList<Object> rowResult = new ArrayList<>();
+        for(Map.Entry<String, Object> column : row.entrySet()) {
+          if(firstRow) columnNames.add(column.getKey());
+          rowResult.add(column.getValue());
+        }
+        results.add(rowResult.toArray(new Object[rowResult.size()]));
+        firstRow = false;
       }
-      results.add(rowResult.toArray(new Object[rowResult.size()]));
-      firstRow = false;
+      tx.success();
     }
 
     return new Result(
