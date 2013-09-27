@@ -1,5 +1,6 @@
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
+import org.neo4j.cypher.javacompat.QueryStatistics;
 import org.neo4j.graphdb.*;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.HighlyAvailableGraphDatabaseFactory;
@@ -12,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class Neo4jWrapper {
   public class Result {
@@ -23,7 +23,6 @@ public class Neo4jWrapper {
       this.result = result;
     }
   }
-
   public class Property {
     public String name;
     public Object value;
@@ -32,6 +31,38 @@ public class Neo4jWrapper {
       this.value = value;
     }
   }
+
+  public class _QueryStatistics {
+    public boolean containsUpdates;
+    public int deletedNodes;
+    public int deletedRelationships;
+    public int constraintsAdded;
+    public int constraintsRemoved;
+    public int indexesAdded;
+    public int indexesRemoved;
+    public int labelsAdded;
+    public int labelsRemoved;
+    public int nodesCreated;
+    public int propertiesSet;
+    public int relationshipsCreated;
+    public _QueryStatistics(QueryStatistics queryStatistics) {
+      this.containsUpdates = queryStatistics.containsUpdates();
+      this.deletedNodes = queryStatistics.getDeletedNodes();
+      this.deletedRelationships = queryStatistics.getDeletedRelationships();
+      this.constraintsAdded = queryStatistics.getConstraintsAdded();
+      this.constraintsRemoved = queryStatistics.getConstraintsRemoved();
+      this.indexesAdded = queryStatistics.getIndexesAdded();
+      this.indexesRemoved = queryStatistics.getIndexesRemoved();
+      this.labelsAdded = queryStatistics.getLabelsAdded();
+      this.labelsRemoved = queryStatistics.getLabelsRemoved();
+      this.nodesCreated = queryStatistics.getNodesCreated();
+      this.propertiesSet = queryStatistics.getPropertiesSet();
+      this.relationshipsCreated = queryStatistics.getRelationshipsCreated();
+    }
+  }
+
+  private QueryStatistics queryStatistics;
+
   public GraphDatabaseService connect(String dir, Map<String, String> properties) {
     GraphDatabaseService graphDb = new GraphDatabaseFactory()
         .newEmbeddedDatabaseBuilder(dir)
@@ -121,6 +152,9 @@ public class Neo4jWrapper {
   public String getType(Relationship relationship) {
     return relationship.getType().name();
   }
+  public _QueryStatistics getQueryStatistics() {
+    return new _QueryStatistics(this.queryStatistics);
+  }
   public Result query(final GraphDatabaseService graphDb, final String query, final Map<String, Object> params) {
     ArrayList<Object[]> results = new ArrayList<>();
     ArrayList<String> columnNames = new ArrayList<>();
@@ -128,6 +162,7 @@ public class Neo4jWrapper {
     try(Transaction tx = graphDb.beginTx()) {
       ExecutionEngine engine = new ExecutionEngine(graphDb);
       ExecutionResult result = engine.execute(query, params);
+      this.queryStatistics = result.getQueryStatistics();
 
       Boolean firstRow = true;
       for(Map<String, Object> row : result) {
