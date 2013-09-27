@@ -1,6 +1,7 @@
 # node-neo4j-embedded
 
 [![Build Status](https://travis-ci.org/joewhite86/node-neo4j-embedded.png?branch=master)](https://travis-ci.org/joewhite86/node-neo4j-embedded)
+[![NPM version](https://badge.fury.io/js/neo4j-embedded.png)](http://badge.fury.io/js/neo4j-embedded)
 
 The embedded Neo4j Graph Database for Node.js.
 
@@ -107,6 +108,28 @@ catch(e) {
 }
 finally {
   tx.finish(); 
+}
+```
+### Work with labels
+
+``` javascript
+var tx;
+try {
+  tx = database.beginTx();
+  var marge = database.getNodeById(2);
+  marge.addLabel('Person');
+  marge.getLabels();
+  // --> ['Person']
+  if(marge.hasLabel('Person')) {
+    marge.removeLabel('Person');
+  }
+  tx.success();
+}
+catch(e) {
+  tx.failure();
+}
+finally {
+  tx.finish();
 }
 ```
 
