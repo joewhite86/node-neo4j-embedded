@@ -43,32 +43,60 @@ describe('GraphDatabase', function() {
     tx.success();
     tx.finish();
   });
+  it('transaction', function(done) {
+    database.transaction(function(finish) {
+      var node = database.createNode('LABEL');
+      expect(node.hasLabel('LABEL')).to.be(true);
+      finish(null, true);
+    }, function(err, success) {
+      expect(err).to.be(null);
+      expect(success).to.be(true);
+      done();
+    });
+  });
+  it('transaction error', function(done) {
+    database.transaction(function(success) {
+      var e = null;
+      try {
+        var node = database.createNode('LABEL');
+        expect(node.hasLabel('LABEL')).to.be(true);
+        var x = database.getNodeById(1000);
+      }
+      catch(_e) {
+        e = _e;
+        expect(e).to.be.an('object');
+      }
+      finally {
+        success(e, typeof e === 'undefined');
+      }
+    }, function(err, success) {
+      expect(err).to.be.an('object');
+      expect(success).to.be(false);
+      done();
+    });
+  });
 });
 describe('GraphDatabase#Cypher', function() {
   var homer, marge, rel;
 
-  beforeEach(function() {
-    var tx = database.beginTx();
+  beforeEach(function(done) {
+    database.transaction(function(success) {
+      homer = database.createNode(),
+      marge = database.createNode();
 
-    homer = database.createNode(),
-    marge = database.createNode();
-
-    homer.setProperty('name', 'Homer Simpson');
-    marge.setProperty('name', 'Marge Simpson');
-    rel = homer.createRelationshipTo(marge, 'MARRIED_WITH');
-
-    tx.success();
-    tx.finish();
+      homer.setProperty('name', 'Homer Simpson');
+      marge.setProperty('name', 'Marge Simpson');
+      rel = homer.createRelationshipTo(marge, 'MARRIED_WITH');
+      success();
+    }, done)
   });
-  afterEach(function() {
-    var tx = database.beginTx();
-
-    rel.delete();
-    homer.delete();
-    marge.delete();
-
-    tx.success();
-    tx.finish();
+  afterEach(function(done) {
+    database.transaction(function(success) {
+      rel.delete();
+      homer.delete();
+      marge.delete();
+      success();
+    }, done);
   });
 
   it('query', function(done) {

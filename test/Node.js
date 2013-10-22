@@ -84,6 +84,25 @@ describe('Node', function() {
     expect(homer.hasProperty('name')).to.be(true);
     expect(homer.hasProperty('xyz4')).to.be(false);
   });
+  it('addLabel', function() {
+    expect(function() {homer.addLabel('Drunk');}).to.not.throwError();
+    expect(function() {homer.addLabel('Drunk', 'Person');}).to.not.throwError();
+  });
+  it('hasLabel', function() {
+    homer.addLabel('Drunk');
+    expect(homer.hasLabel('Drunk')).to.be(true);
+  });
+  it('getLabels', function() {
+    homer.addLabel('Drunk', 'Person');
+    expect(homer.getLabels()).to.eql(['Person', 'Drunk']);
+  });
+  it('removeLabel', function() {
+    homer.addLabel('Drunk', 'Person');
+    expect(function() {homer.removeLabel('Drunk');}).to.not.throwError();
+    expect(homer.hasLabel('Drunk')).to.be(false);
+    expect(homer.hasLabel('Person')).to.be(true);
+    expect(homer.getLabels()).to.eql(['Person']);
+  });
   it('delete', function() {
     homer.delete();
     try {

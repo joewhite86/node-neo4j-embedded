@@ -17,10 +17,10 @@ API documentation can be found here: http://docs.whitefrog.de/neo4j-embedded
 
 ## Usage
 
-Note that the Neo4j version is 1.9, so you need Java 7 on your machine for this to work.
-If you want to change that, you need to edit the pom.xml and compile for yourself.
+Note that the Neo4j version is 2.0, so you need Java 7 on your machine for this to work.
+If you want to change that, you need to edit the pom.xml and java sources and compile for yourself.
 
-Further take care inside the try/catch blocks. Don't use callbacks inside!
+Further take care inside the try/catch blocks. Don't use callbacks inside (unless you know what you do)!
 
 Maybe I will change the methods to be async in future, but actually it works for me.
 
@@ -28,8 +28,15 @@ Maybe I will change the methods to be async in future, but actually it works for
 
 ``` javascript
 var neo4j = new require('neo4j-embedded');
-neo4j.setVMOptions('-Xmx4096m');
-neo4j.setDatabaseProperties({'org.neo4j.server.manage.console_engines': 'shell', 'org.neo4j.server.webserver.port', '7575'});
+
+// global java vm options
+neo4j.setVMOptions('-Xmx4096m', '-Djava.util.logging.config.file=config/neo4j-logging.properties'); // the second option provides a custom log config
+neo4j.setDatabaseProperties({'remote_shell_enabled': 'true'});
+neo4j.setServerProperties({
+  "org.neo4j.server.webserver.https.enabled": "true",
+  "org.neo4j.server.webserver.port": "7575",
+  "org.neo4j.server.webserver.https.port": "7574" 
+});
 
 // default embedded
 neo4j.connect('graph.db', function(err, database) {
@@ -52,48 +59,48 @@ neo4j.connectHAWrapped('graph.db', function(err, database) {
 ### Create nodes and relationships
 
 ``` javascript
-var tx;
-try {
-  tx = database.beginTx();
-  var homer = database.createNode();
-  var marge = database.createNode();
-  var married = homer.createRelationshipTo(marge, 'MARRIED_WITH');
-  tx.success();
-}
-catch(e) {
-  tx.failure();
-}
-finally {
-  tx.finish(); 
-}
+database.transaction(function(success) {
+  var err = null;
+  try {
+    var homer = database.createNode();
+    var marge = database.createNode();
+    var married = homer.createRelationshipTo(marge, 'MARRIED_WITH');
+  }
+  catch(e) {
+    err = e;
+  }
+
+  success(err, err === null);
+}, function(err, success) {
+  // ...
+});
 ```
 
 ### Delete nodes and relationships
 
 ``` javascript
-var tx;
-try {
-  tx = database.beginTx();
-  var homer = database.getNodeById(1);
-  var married = homer.getRelationship('MARRIED_WITH');
-  married.delete();
-  homer.delete();
-  tx.success();
-}
-catch(e) {
-  tx.failure();
-}
-finally {
-  tx.finish();
-}
+database.transaction(function(success) {
+  var err = null;
+  try {
+    var homer = database.getNodeById(1);
+    var married = homer.getRelationship('MARRIED_WITH');
+    married.delete();
+    homer.delete();
+  }
+  catch(e) {
+    err = e;
+  }
+  
+  success(err, err === null);
+}, function(err, success) {
+  // ...
+});
 ```
 
 ### Deal with properties
 
 ``` javascript
-var tx;
-try {
-  tx = database.beginTx();
+database.transaction(function(success) {
   var marge = database.getNodeById(2);
   marge.setProperty('name', 'Marge Simpson');
   marge.setProperty('haircolor', 'blue');
@@ -101,14 +108,10 @@ try {
   // properties: {name: 'Marge Simpson', haircolor: 'blue'}
   var hairColor = marge.getProperty('haircolor');
   // hairColor: 'blue'
-  tx.success();
-}
-catch(e) {
-  tx.failure();
-}
-finally {
-  tx.finish(); 
-}
+  success(true);
+}, function(err, success) {
+  
+});
 ```
 ### Work with labels
 
@@ -179,6 +182,18 @@ query.execute({search: 1}, function(err, results, total) {
     console.log(results[i].n.getId());
   }
 });
+```
+
+### A word on Long values
+
+Long values, or 64-bit integers aren't natively supported in javascript. The author of the node-java module however has a built in a way to handle longs.
+Long values are returned as Objects, containing a property: longValue, which is a String representation of the long value.
+
+``` javascript
+query.startAt({n: 'node({id})'}).returns('n');
+query.execute({id: database.getLong('1234')}, ...);
+
+var id = homer.getId().longValue;
 ```
 
 ## Testing

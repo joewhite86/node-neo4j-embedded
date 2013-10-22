@@ -97,7 +97,7 @@ describe('QueryBuilder', function() {
     var query = database.queryBuilder();
     query.startAt({lisa: 'node:SIMPSONS({search})'});
     query.match('(lisa)-[:CHILD_OF]->(parent)');
-    query.returns('parent');
+    query.return('parent');
     query.execute({search: "name: Lisa"}, function(err, results, total) {
       expect(err).to.be(null);
       expect(total).to.be(2);
@@ -108,5 +108,12 @@ describe('QueryBuilder', function() {
   it('should escape special characters for lucene', function() {
     var query = database.queryBuilder();
     expect(query.escape('AND OR')).to.be('\\AND\\ \\OR');
+  });
+  it('should delete marge', function(done) {
+    var query = database.queryBuilder();
+    query.startAt({marge: 'node:SIMPSONS({search})'});
+    query.match('marge-[r]-x')
+    query.delete('r, marge');
+    query.execute({search: "name: Marge"}, done);
   });
 });

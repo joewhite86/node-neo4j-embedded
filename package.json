@@ -1,7 +1,7 @@
 {
   "name": "neo4j-embedded",
-  "version": "0.4.0",
-  "description": "The embedded Neo4j Graph Database for Node.js.",
+  "version": "2.0.0",
+  "description": "The embedded Neo4j Graph Database for Node.js. Supports transactions, indexes, labels. Also includes a query builder.",
   "main": "./lib/neo4j.js",
   "scripts": {
     "test": "node_modules/mocha/bin/mocha -R spec",
@@ -10,7 +10,9 @@
   "keywords": [
     "neo4j",
     "graph database",
-    "driver"
+    "driver",
+    "labels",
+    "2.0"
   ],
   "repository": {
     "type": "git",
@@ -26,7 +28,8 @@
     }
   ],
   "author": {
-    "name": "Jochen Weis"
+    "name": "Jochen Weis",
+    "email": "jochen@whitefrog.de"
   },
   "license": "MIT",
   "devDependencies": {

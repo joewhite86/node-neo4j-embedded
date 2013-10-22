@@ -18,4 +18,7 @@ describe('neo4j', function() {
   it('Transaction should be a function', function() {
     expect(neo4j.Transaction).to.be.a('function');
   });
+  it('DIRECTION should be a function', function() {
+    expect(neo4j.DIRECTION).to.be.a('function');
+  });
 });
