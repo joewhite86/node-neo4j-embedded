@@ -10,9 +10,20 @@ The embedded Neo4j Graph Database for Node.js.
 npm install neo4j-embedded
 ```
 
+### Neo4j 2.x
+
+Neo4j 2.0 is currently in Milestone.
+If you can't wait for neo4j-2.x to get final, you can use the 2.x branch:
+
+``` bash
+npm install git://github.com/joewhite86/node-neo4j-embedded.git#neo4j-2.x
+```
+
+[node-neo4j-embedded 2.x](https://github.com/joewhite86/node-neo4j-embedded/tree/neo4j-2.x)
+
 ## Documentation
 
-API documentation can be found here: http://docs.whitefrog.de/neo4j-embedded
+[Full API Documentation](http://docs.whitefrog.de/neo4j-embedded)
 
 ## Usage
 
