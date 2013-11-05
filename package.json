@@ -38,6 +38,7 @@
     "async": "~0.2.8"
   },
   "dependencies": {
-    "java": "https://github.com/nearinfinity/node-java/tarball/master"
+    "java": "https://github.com/nearinfinity/node-java/tarball/master",
+    "promise": "~3.2.0"
   }
 }

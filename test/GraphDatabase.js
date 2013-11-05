@@ -119,6 +119,25 @@ describe('GraphDatabase#Cypher', function() {
     });
   });
 
+  it('query (promise)', function(done) {
+    var results = database.query('START man=node({id}) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name', {id: 2});
+    results.then(function(result) {
+      try {
+        expect(result).to.be.an('array');
+        expect(result[0]).to.be.an('object');
+        expect(result[0].man).to.be.an('object');
+        expect(result[0].man.getId()).to.be('2');
+        expect(result[0].rel).to.be.an('object');
+        expect(result[0].rel.getStartNode().getId()).to.be(result[0].man.getId());
+        expect(result[0].rel.getType()).to.be('MARRIED_WITH');
+        expect(result[0].woman_id.longValue).to.be('3');
+        expect(result[0].woman_name).to.be('Marge Simpson');
+      }
+      catch(e) {}
+      done();
+    }, done);
+  });
+
   it('query with params', function(done) {
     database.query('START man=node({search}) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name', {search: homer}, function(err, result) {
       try {
