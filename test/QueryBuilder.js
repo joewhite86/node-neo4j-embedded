@@ -14,6 +14,7 @@ before(function(done) {
 });
 
 after(function(done) {
+  this.timeout(10000);
   database.shutdown();
   var exec = require('child_process').exec, child;
   child = exec('rm -rf test/QueryBuilder.db', function(err,out) {
