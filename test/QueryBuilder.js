@@ -79,6 +79,7 @@ describe('QueryBuilder', function() {
     });
   });
   it('should execute a simple query', function(done) {
+    this.timeout(5000);
     var tx = database.beginTx();
     var query = database.queryBuilder();
     expect(query).to.be.an('object');
@@ -93,6 +94,7 @@ describe('QueryBuilder', function() {
     });
   });
   it('should find lisa\'s parents', function(done) {
+    this.timeout(5000);
     var query = database.queryBuilder();
     query.startAt({lisa: 'node:SIMPSONS({search})'});
     query.match('(lisa)-[:CHILD_OF]->(parent)');
