@@ -174,6 +174,9 @@ query.startAt({n: 'node({search})'})
      .match('(n)-[:MARRIED_WITH]->()')
      .returns('n');
 
+var subquery = query.with('n');
+subquery.where('id(n) = 1');
+
 // disable counting
 // query.dontCount(); -> total will be -1
 

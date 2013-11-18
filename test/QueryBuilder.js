@@ -86,8 +86,6 @@ describe('QueryBuilder', function() {
     query.execute(function(err, result, total) {
       expect(err).to.be(null);
       expect(result).to.be.an('array');
-      expect(total).to.be.a('number');
-      expect(total).to.be(5);
       tx.success();
       tx.finish();
       done();
@@ -100,10 +98,29 @@ describe('QueryBuilder', function() {
     query.return('parent');
     query.execute({search: "name: Lisa"}, function(err, results, total) {
       expect(err).to.be(null);
-      expect(total).to.be(2);
       expect(results.length).to.be(2);
-      done();
+      query.getCount({search: "name: Lisa"}, function(err, total) {
+        expect(err).to.be(null);
+        expect(total).to.be('2');
+        done();
+      });
     });
+  });
+  it('should return a correct formatted WITH query', function() {
+    var query = database.queryBuilder();
+    query.match('(s:Simpsons)');
+    query.orderBy({field: 's.name', dir: 'ASC'});
+    query.limit(1, 10);
+    query.return('s');
+    var subquery = query.with();
+    subquery.match('(s)-[:CHILD_OF]->(parent)');
+    subquery.orderBy({field: 'parent.name', dir: 'ASC'});
+    subquery.limit(1, 20);
+    subquery.return('s, parent');
+    var subquery2 = subquery.with();
+    subquery2.where('id(parent) = 1');
+    subquery2.return('s');
+    expect(query.buildQuery()).to.be('MATCH (s:Simpsons) WITH s ORDER BY s.name ASC SKIP 1 LIMIT 10 MATCH (s)-[:CHILD_OF]->(parent) WITH s, parent ORDER BY parent.name ASC SKIP 1 LIMIT 20 WHERE id(parent) = 1 RETURN s');
   });
   it('should escape special characters for lucene', function() {
     var query = database.queryBuilder();
