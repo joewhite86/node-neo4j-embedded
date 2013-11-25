@@ -4,7 +4,7 @@
   "description": "The embedded Neo4j Graph Database for Node.js. Supports transactions, indexes, labels. Also includes a query builder.",
   "main": "./lib/neo4j.js",
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha -R spec",
+    "test": "node_modules/mocha/bin/mocha -R spec -s 0",
     "install": "mvn clean package"
   },
   "keywords": [
