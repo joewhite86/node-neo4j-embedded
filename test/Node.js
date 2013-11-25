@@ -6,20 +6,19 @@ var database;
 
 before(function(done) {
   this.timeout(10000);
-  neo4j.setDatabaseProperties(['-Xmx4096m']);
-  neo4j.connect('test/Node.db', function(err, db) {
-    database = db;
-    done();
+  var exec = require('child_process').exec, child;
+  child = exec('rm -rf test/Node.db', function(err,out) {
+    neo4j.setDatabaseProperties(['-Xmx4096m']);
+    neo4j.connect('test/Node.db', function(err, db) {
+      database = db;
+      done();
+    });
   });
 });
 
-after(function(done) {
+after(function() {
   this.timeout(10000);
   database.shutdown();
-  var exec = require('child_process').exec, child;
-  child = exec('rm -rf test/Node.db', function(err,out) {
-    done();
-  });
 });
 
 describe('Node', function() {
@@ -67,7 +66,7 @@ describe('Node', function() {
   });
   it('getId', function() {
     expect(homer.getId()).to.be.an('string');
-    expect(homer.getId()).to.be('1');
+    expect(homer.getId()).to.be('0');
   });
   it('get/setProperty', function() {
     homer.setProperty('name', 'Homer Simpson');

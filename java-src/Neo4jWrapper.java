@@ -175,12 +175,11 @@ public class Neo4jWrapper {
         firstRow = false;
       }
       tx.success();
+      return new Result(
+        columnNames.toArray(new String[columnNames.size()]),
+        results.toArray(new Object[results.size()][])
+      );
     }
-
-    return new Result(
-      columnNames.toArray(new String[columnNames.size()]),
-      results.toArray(new Object[results.size()][])
-    );
   }
 
   public static void main(String[] args) {

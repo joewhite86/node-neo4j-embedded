@@ -6,23 +6,25 @@ var database;
 
 before(function(done) {
   this.timeout(10000);
-  neo4j.setDatabaseProperties(['-Xmx4096m']);
-  neo4j.connect('test/GraphDatabase.db', function(err, db) {
-    database = db;
-    done(err);
+  var exec = require('child_process').exec, child;
+  child = exec('rm -rf test/GraphDatabase.db', function(err,out) {
+    neo4j.setDatabaseProperties(['-Xmx4096m']);
+    neo4j.connect('test/GraphDatabase.db', function(err, db) {
+      database = db;
+      done(err);
+    });
   });
 });
 
-after(function(done) {
+after(function() {
   this.timeout(10000);
   database.shutdown();
-  var exec = require('child_process').exec, child;
-  child = exec('rm -rf test/GraphDatabase.db', function(err,out) {
-    done();
-  });
 });
 
 describe('GraphDatabase', function() {
+  afterEach(function(done) {
+    database.query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r').then(function() {}).done(done, done);
+  });
   it('connect', function() {
     expect(database.isConnected).to.be(true);
   });
@@ -31,15 +33,15 @@ describe('GraphDatabase', function() {
         node = database.createNode();
 
     expect(node.getId()).to.be.an('string');
-    expect(node.getId()).to.be('1');
-    node.delete();
+    expect(node.getId()).to.be('0');
     tx.success();
     tx.finish();
   });
   it('getNodeById', function() {
     var tx = database.beginTx();
-    expect(database.getNodeById(0)).to.be.an('object');
-    expect(database.getNodeById(0).getId()).to.be('0');
+    var node = database.createNode();
+    expect(database.getNodeById(node.getId())).to.be.an('object');
+    expect(database.getNodeById(node.getId()).getId()).to.be(node.getId());
     try {database.getNodeById(100000); expect(true).to.be(false);} catch(e) {}
     tx.success();
     tx.finish();
@@ -102,17 +104,18 @@ describe('GraphDatabase#Cypher', function() {
 
   it('query', function(done) {
     this.timeout(10000);
-    database.query('START man=node(2) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name', function(err, result) {
+    var query = 'START man=node(' + homer.getId() + ') MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name';
+    database.query(query, function(err, result) {
       try {
         expect(err).to.be(null);
         expect(result).to.be.an('array');
         expect(result[0]).to.be.an('object');
         expect(result[0].man).to.be.an('object');
-        expect(result[0].man.getId()).to.be('2');
+        expect(result[0].man.getId()).to.be(homer.getId());
         expect(result[0].rel).to.be.an('object');
         expect(result[0].rel.getStartNode().getId()).to.be(result[0].man.getId());
         expect(result[0].rel.getType()).to.be('MARRIED_WITH');
-        expect(result[0].woman_id.longValue).to.be('3');
+        expect(result[0].woman_id.longValue).to.be(marge.getId());
         expect(result[0].woman_name).to.be('Marge Simpson');
       }
       catch(e) {}
@@ -121,17 +124,18 @@ describe('GraphDatabase#Cypher', function() {
   });
 
   it('query (promise)', function(done) {
-    var results = database.query('START man=node({id}) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name', {id: 2});
+    var query = 'START man=node({id}) MATCH (man)-[rel:MARRIED_WITH]->(woman) RETURN man, rel, ID(woman) as woman_id, woman.name as woman_name';
+    var results = database.query(query, {id: database.getLong(homer.getId())});
     results.then(function(result) {
       try {
         expect(result).to.be.an('array');
         expect(result[0]).to.be.an('object');
         expect(result[0].man).to.be.an('object');
-        expect(result[0].man.getId()).to.be('2');
+        expect(result[0].man.getId()).to.be(homer.getId());
         expect(result[0].rel).to.be.an('object');
         expect(result[0].rel.getStartNode().getId()).to.be(result[0].man.getId());
         expect(result[0].rel.getType()).to.be('MARRIED_WITH');
-        expect(result[0].woman_id.longValue).to.be('3');
+        expect(result[0].woman_id.longValue).to.be(marge.getId());
         expect(result[0].woman_name).to.be('Marge Simpson');
       }
       catch(e) {}

@@ -6,25 +6,24 @@ var database;
 
 before(function(done) {
   this.timeout(10000);
-  neo4j.setDatabaseProperties(['-Xmx4096m']);
-  neo4j.connect('test/QueryBuilder.db', function(err, db) {
-    database = db;
-    done();
+  var exec = require('child_process').exec, child;
+  child = exec('rm -rf test/QueryBuilder.db', function(err,out) {
+    neo4j.setDatabaseProperties(['-Xmx4096m']);
+    neo4j.connect('test/QueryBuilder.db', function(err, db) {
+      database = db;
+      done();
+    });
   });
 });
 
-after(function(done) {
+after(function() {
   this.timeout(10000);
   database.shutdown();
-  var exec = require('child_process').exec, child;
-  child = exec('rm -rf test/QueryBuilder.db', function(err,out) {
-    done();
-  });
 });
 
 describe('QueryBuilder', function() {
   var homer, marge, lisa, bart, maggie;
-  beforeEach(function(done) {
+  beforeEach(function() {
     var tx = database.beginTx();
     homer = database.createNode();
     homer.setProperty('name', 'Homer');
@@ -55,29 +54,21 @@ describe('QueryBuilder', function() {
 
     tx.success();
     tx.finish();
-    done();
   });
-  afterEach(function(done) {
+
+  afterEach(function() {
     var tx = database.beginTx();
-    async.each([homer, marge, lisa, bart, maggie], function(node, done) {
-      try {
-        var rels = node.getRelationships();
-        for(var i = 0; i < rels.length; i++) rels[i].delete();
+    try {
+      [homer, marge, lisa, bart, maggie].forEach(function(node) {
+        node.getRelationships().forEach(function(relationship) {relationship.delete();});
         node.delete();
-      }
-      catch(e) {}
-      finally {
-        done();
-      }
-    }, function() {
+      });
       tx.success();
-      try {
-        tx.finish();
-      }
-      catch(e) {}
-      done();
-    });
+    }
+    catch(e) {}
+    tx.finish();
   });
+
   it('should execute a simple query', function(done) {
     this.timeout(5000);
     var tx = database.beginTx();
@@ -85,12 +76,14 @@ describe('QueryBuilder', function() {
     expect(query).to.be.an('object');
     query.startAt({n: 'node:SIMPSONS("*: *")'});
     query.returns('n');
-    query.execute(function(err, result, total) {
-      expect(err).to.be(null);
+    query.execute().then(function(result) {
       expect(result).to.be.an('array');
-      tx.success();
+    }).done(function() {
       tx.finish();
       done();
+    }, function(err) {
+      tx.finish();
+      done(err);
     });
   });
   it('should find lisa\'s parents', function(done) {
@@ -99,7 +92,7 @@ describe('QueryBuilder', function() {
     query.startAt({lisa: 'node:SIMPSONS({search})'});
     query.match('(lisa)-[:CHILD_OF]->(parent)');
     query.return('parent');
-    query.execute({search: "name: Lisa"}, function(err, results, total) {
+    query.execute({search: "name: Lisa"}, function(err, results) {
       expect(err).to.be(null);
       expect(results.length).to.be(2);
       query.getCount({search: "name: Lisa"}, function(err, total) {
@@ -111,19 +104,25 @@ describe('QueryBuilder', function() {
   });
   it('should return a correct formatted WITH query', function() {
     var query = database.queryBuilder();
-    query.match('(s:Simpsons)');
-    query.orderBy({field: 's.name', dir: 'ASC'});
-    query.limit(1, 10);
-    query.return('s');
-    var subquery = query.with();
-    subquery.match('(s)-[:CHILD_OF]->(parent)');
-    subquery.orderBy({field: 'parent.name', dir: 'ASC'});
-    subquery.limit(1, 20);
-    subquery.return('s, parent');
-    var subquery2 = subquery.with();
-    subquery2.where('id(parent) = 1');
-    subquery2.return('s');
-    expect(query.buildQuery()).to.be('MATCH (s:Simpsons) WITH s ORDER BY s.name ASC SKIP 1 LIMIT 10 MATCH (s)-[:CHILD_OF]->(parent) WITH s, parent ORDER BY parent.name ASC SKIP 1 LIMIT 20 WHERE id(parent) = 1 RETURN s');
+    query.match('(s:Simpsons)')
+      .orderBy({field: 's.name', dir: 'ASC'})
+      .limit(1, 10)
+      .with('s')
+      .match('(s)-[:CHILD_OF]->(parent)')
+      .optionalMatch('(s)-->(x)')
+      .orderBy({field: 'parent.name', dir: 'ASC'})
+      .limit(1, 20)
+      .with('s, parent')
+      .where('id(parent) = 1')
+      .return('s');
+    expect(query.buildQuery()).to.be(
+      'MATCH (s:Simpsons) ' +
+      'WITH s ORDER BY s.name ASC SKIP 1 LIMIT 10 ' +
+      'MATCH (s)-[:CHILD_OF]->(parent) ' +
+      'OPTIONAL MATCH (s)-->(x) ' +
+      'WITH s, parent ORDER BY parent.name ASC SKIP 1 LIMIT 20 ' +
+      'WHERE id(parent) = 1 RETURN s'
+    );
   });
   it('should escape special characters for lucene', function() {
     var query = database.queryBuilder();

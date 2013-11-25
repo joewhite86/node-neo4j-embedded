@@ -6,20 +6,19 @@ var database;
 
 before(function(done) {
   this.timeout(10000);
-  neo4j.setDatabaseProperties(['-Xmx4096m']);
-  neo4j.connect('test/Relationship.db', function(err, db) {
-    database = db;
-    done();
+  var exec = require('child_process').exec, child;
+  child = exec('rm -rf test/Relationship.db', function(err,out) {
+    neo4j.setDatabaseProperties(['-Xmx4096m']);
+    neo4j.connect('test/Relationship.db', function(err, db) {
+      database = db;
+      done();
+    });
   });
 });
 
-after(function(done) {
+after(function() {
   this.timeout(10000);
   database.shutdown();
-  var exec = require('child_process').exec, child;
-  child = exec('rm -rf test/Relationship.db', function(err,out) {
-    done();
-  });
 });
 
 describe('Relationship', function() {
