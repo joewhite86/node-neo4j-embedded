@@ -4,6 +4,11 @@
 
 The embedded Neo4j Graph Database for Node.js.
 
+
+### !!! WARNING !!!
+
+As I discovered lately, there's a serious [bug](https://github.com/joewhite86/node-neo4j-embedded/issues/3) in the implementation. For those of you who are in need of high performance with neo4j and node.js, I set up an [example project](https://github.com/joewhite86/neo4j-embedded-example) to get you a clue how to achieve this without hitting the bug.
+
 ## Installation
 
 ``` bash
